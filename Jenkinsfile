@@ -1,3 +1,4 @@
+def registry = 'https://techno99.jfrog.io/'
 pipeline {
     agent {
         label 'maven'
