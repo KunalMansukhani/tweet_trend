@@ -1,6 +1,7 @@
 def registry = 'https://techno99.jfrog.io'
 def imageName = 'techno99.jfrog.io/valaxy-docker-local/ttrend'
 def version = '2.1.2'
+def app // Define 'app' at the pipeline level
 
 pipeline {
     agent {
@@ -43,7 +44,7 @@ pipeline {
             steps {
                 script {
                     echo '<--------------- Docker Build Started --------------->'
-                    def app = docker.build(imageName + ":" + version)
+                    app = docker.build(imageName + ":" + version) // Build the Docker image
                     echo '<--------------- Docker Build Ends --------------->'
                 }
             }
@@ -51,18 +52,18 @@ pipeline {
         stage("Docker Publish") {
             steps {
                 script {
-            try {
-                echo '<--------------- Docker Publish Started --------------->'
-                docker.withRegistry(registry, 'artifact-cred') {
-                    app.push()
+                    try {
+                        echo '<--------------- Docker Publish Started --------------->'
+                        docker.withRegistry(registry, 'artifact-cred') {
+                            app.push() // Push the Docker image
+                        }
+                        echo '<--------------- Docker Publish Ended --------------->'
+                    } catch (Exception e) {
+                        echo "Error in Docker Publish: ${e.getMessage()}"
+                        throw e // Rethrow the exception to fail the build
+                    }
                 }
-                echo '<--------------- Docker Publish Ended --------------->'
-            } catch (Exception e) {
-                echo "Error in Docker Publish: ${e.getMessage()}"
-                throw e // Rethrow the exception to fail the build
-            }
             }
         }
     }
-}
 }
