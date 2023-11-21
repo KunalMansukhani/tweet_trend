@@ -51,12 +51,16 @@ pipeline {
         stage("Docker Publish") {
             steps {
                 script {
-                    echo '<--------------- Docker Publish Started --------------->'
-                    docker.withRegistry(registry, 'artifact-cred') {
-                        app.push()
-                    }
-                    echo '<--------------- Docker Publish Ended --------------->'
+            try {
+                echo '<--------------- Docker Publish Started --------------->'
+                docker.withRegistry(registry, 'artifact-cred') {
+                    app.push()
                 }
+                echo '<--------------- Docker Publish Ended --------------->'
+            } catch (Exception e) {
+                echo "Error in Docker Publish: ${e.getMessage()}"
+                throw e // Rethrow the exception to fail the build
+            }
             }
         }
     }
